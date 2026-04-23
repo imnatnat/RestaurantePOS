@@ -1,6 +1,6 @@
 document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const res = await fetch("https://YOUR_BACKEND_URL/login", {
+  const res = await fetch("https://restaurant-pos-backend-i88u.onrender.com", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
