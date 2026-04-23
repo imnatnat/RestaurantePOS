@@ -1,5 +1,3 @@
-console.log("app.js loaded");
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
 
@@ -9,13 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = document.getElementById("user").value;
     const pass = document.getElementById("pass").value;
 
-    console.log("Login attempt:", user, pass);
+    console.log("Login:", user);
 
-    // TEMP LOGIN (for testing)
-    if (user && pass) {
+    // TEMP LOGIN (you can change this later)
+    if (user === "admin" && pass === "1234") {
       window.location.href = "dashboard.html";
     } else {
-      alert("Fill in fields");
+      alert("Invalid credentials");
     }
   });
 });
