@@ -1,0 +1,56 @@
+<script>
+const API = "https://restaurant-pos-backend-i88u.onrender.com";
+
+let orden = [];
+
+async function cargarMenu() {
+  const res = await fetch(`${API}/menu`);
+  const data = await res.json();
+
+  data.forEach(i => {
+    const b = document.createElement("button");
+    b.innerText = `${i.nombre} - $${i.precio}`;
+
+    b.onclick = () => {
+      let nivel = prompt("Spicy level 0-5") || "0";
+
+      orden.push({
+        ...i,
+        nivel_picante: nivel
+      });
+
+      render();
+    };
+
+    document.getElementById("menu").appendChild(b);
+  });
+}
+
+function render() {
+  const ul = document.getElementById("orden");
+  ul.innerHTML = "";
+
+  let total = 0;
+
+  orden.forEach(o => {
+    total += parseFloat(o.precio);
+
+    const li = document.createElement("li");
+    li.innerText = `${o.nombre} 🌶️${o.nivel_picante} - $${o.precio}`;
+
+    ul.appendChild(li);
+  });
+
+  document.getElementById("total").innerText =
+    "Total: $" + total.toFixed(2);
+}
+
+function splitBill() {
+  const people = prompt("How many people?");
+  const total = orden.reduce((s, o) => s + parseFloat(o.precio), 0);
+
+  alert("Each pays: $" + (total / people).toFixed(2));
+}
+
+cargarMenu();
+</script>
