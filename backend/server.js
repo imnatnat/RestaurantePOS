@@ -6,6 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('API is running 🚀');
+});
+
 // --- AUTH ---
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
