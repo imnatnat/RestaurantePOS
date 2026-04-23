@@ -6,6 +6,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ ROOT TEST
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
+
+// ✅ DB TEST (FIXED: using db instead of connection)
+app.get("/test-db", (req, res) => {
+  db.query("SELECT 1", (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("DB error ❌");
+    }
+    res.send("DB connected ✅");
+  });
+});
+
 // --- AUTH ---
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
@@ -84,11 +100,13 @@ app.post("/orden/:id/detalle", (req, res) => {
 
 app.put("/orden/:id/cerrar", (req, res) => {
   const id = req.params.id;
+
   db.query(
     `UPDATE Orden SET estado_orden='Entregado' WHERE id_orden=?`,
     [id],
     (err) => {
       if (err) return res.status(500).json({ error: err });
+
       db.query(
         `UPDATE Mesa SET estado='Disponible'
          WHERE id_mesa = (SELECT id_mesa FROM Orden WHERE id_orden=?)`,
@@ -124,21 +142,8 @@ app.get("/inventario", (req, res) => {
 });
 
 // --- START ---
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
-});
-
-app.get('/', (req, res) => {
-  res.send('API is running 🚀');
-});
-
-app.get('/test-db', (req, res) => {
-  connection.query('SELECT 1', (err, results) => {
-    if (err) {
-      return res.status(500).send('DB error');
-    }
-    res.send('DB connected ✅');
-  });
 });
 
