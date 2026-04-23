@@ -11,14 +11,17 @@ app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-// ✅ DB TEST (FIXED: using db instead of connection)
+// ✅ DB TEST
 app.get("/test-db", (req, res) => {
-  db.query("SELECT 1", (err) => {
+  db.query("SELECT COUNT(*) as total FROM Mesa", (err, result) => {
     if (err) {
       console.error(err);
-      return res.status(500).send("DB error ❌");
+      return res.status(500).json({ error: err });
     }
-    res.send("DB connected ✅");
+    res.json({
+      message: "DB connected ✅",
+      mesas: result[0].total
+    });
   });
 });
 
