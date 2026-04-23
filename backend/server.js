@@ -132,3 +132,13 @@ app.listen(PORT, () => {
 app.get('/', (req, res) => {
   res.send('API is running 🚀');
 });
+
+app.get('/test-db', (req, res) => {
+  connection.query('SELECT 1', (err, results) => {
+    if (err) {
+      return res.status(500).send('DB error');
+    }
+    res.send('DB connected ✅');
+  });
+});
+
