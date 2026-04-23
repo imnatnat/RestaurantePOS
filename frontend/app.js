@@ -1,25 +1,21 @@
-document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
+console.log("app.js loaded");
 
-  const user = document.getElementById("user").value;
-  const pass = document.getElementById("pass").value;
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("loginForm");
 
-  const res = await fetch("https://restaurant-pos-backend-i88u.onrender.com/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: user,
-      password: pass
-    })
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
+
+    console.log("Login attempt:", user, pass);
+
+    // TEMP LOGIN (for testing)
+    if (user && pass) {
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Fill in fields");
+    }
   });
-
-  const data = await res.json();
-
-  if (data.success) {
-    window.location.href = "dashboard.html";
-  } else {
-    alert("Login failed");
-  }
 });
