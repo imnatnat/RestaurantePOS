@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Inventory</h2>
+<div id="inv"></div>
+<script>
+async function load(){
+ const res=await fetch("https://YOUR_BACKEND_URL/inventario");
+ const data=await res.json();
+ data.forEach(i=>{
+   const d=document.createElement("div");
+   d.innerText=i.nombre+" "+i.cantidad;
+   document.getElementById("inv").appendChild(d);
+ });
+}
+load();
+</script>
+</body>
+</html>

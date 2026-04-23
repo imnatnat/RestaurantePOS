@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Tables</h2>
+<div id="floor"></div>
+
+<script>
+const posiciones = {1:{x:50,y:50},2:{x:150,y:50},3:{x:250,y:50},4:{x:350,y:50},5:{x:450,y:50}};
+
+async function cargarMesas(){
+  const res = await fetch("https://YOUR_BACKEND_URL/mesas");
+  const mesas = await res.json();
+  const floor = document.getElementById("floor");
+  floor.innerHTML = "";
+  mesas.forEach(m=>{
+    const d = document.createElement("div");
+    d.innerText = m.numero;
+    d.style.position="absolute";
+    d.style.left=posiciones[m.numero].x+"px";
+    d.style.top=posiciones[m.numero].y+"px";
+    d.style.background=m.estado==="Disponible"?"green":m.estado==="Ocupada"?"red":"blue";
+    d.style.width="60px"; d.style.height="60px";
+    d.onclick=()=>window.location.href=`server.html?mesa=${m.id_mesa}`;
+    floor.appendChild(d);
+  });
+}
+cargarMesas();
+</script>
+</body>
+</html>
