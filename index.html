@@ -1006,6 +1006,63 @@ function drawFloor() {
   const fl = document.getElementById('floor-left');
   if (!fl) return;
 
+  fl.innerHTML = `<div style="position:relative;width:100%;height:100%;"></div>`;
+  const map = fl.firstChild;
+
+  const layout = [
+    {id:1, x:5,  y:5,  seats:4, shape:'rect'},
+    {id:2, x:30, y:5,  seats:4, shape:'rect'},
+    {id:3, x:55, y:5,  seats:4, shape:'rect'},
+    {id:4, x:80, y:5,  seats:4, shape:'rect'},
+
+    {id:5, x:10, y:35, seats:2, shape:'square'},
+    {id:6, x:25, y:35, seats:2, shape:'square'},
+    {id:7, x:40, y:35, seats:4, shape:'round'},
+    {id:8, x:60, y:35, seats:4, shape:'round'},
+    {id:9, x:75, y:35, seats:2, shape:'square'},
+
+    {id:10, x:20, y:55, seats:4, shape:'round'},
+    {id:11, x:50, y:55, seats:2, shape:'square'},
+    {id:12, x:70, y:55, seats:4, shape:'round'},
+
+    {id:13, x:10, y:75, seats:2, shape:'square'},
+    {id:14, x:25, y:75, seats:2, shape:'square'},
+    {id:15, x:40, y:75, seats:2, shape:'square'},
+
+    {id:16, x:60, y:75, seats:4, shape:'round'},
+
+    {id:17, x:80, y:70, seats:8, shape:'large'},
+  ];
+
+  layout.forEach(t => {
+    const node = document.createElement('div');
+
+    node.style.position = 'absolute';
+    node.style.left = t.x + '%';
+    node.style.top = t.y + '%';
+    node.style.transform = 'translate(-50%, -50%)';
+
+    node.innerHTML = `
+      <div style="
+        width:${t.shape === 'large' ? 80 : 50}px;
+        height:${t.shape === 'large' ? 50 : 50}px;
+        border:1px solid var(--border);
+        background:var(--card);
+        border-radius:${t.shape === 'round' ? '50%' : '6px'};
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+      ">
+        <div>${t.id}</div>
+        <div style="font-size:10px;color:var(--muted)">${t.seats}p</div>
+      </div>
+    `;
+
+    map.appendChild(node);
+  });
+}
+
   const zones = {};
   TABLES.forEach(t => {
     if (!zones[t.zone]) zones[t.zone] = [];
