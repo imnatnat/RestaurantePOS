@@ -1515,5 +1515,127 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
 }
 </script>
+
+<!-- Firebase (NO build tools needed) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔑 YOUR CONFIG (already correct)
+const firebaseConfig = {
+  apiKey: "AIzaSyCLPsPBZqgap4goUqUI6YW6iX7fdUVeAhQ",
+  authDomain: "restaurantepos-5cabe.firebaseapp.com",
+  projectId: "restaurantepos-5cabe",
+  storageBucket: "restaurantepos-5cabe.firebasestorage.app",
+  messagingSenderId: "1009629175685",
+  appId: "1:1009629175685:web:63ef1d29b4ce1f36e1eeec",
+};
+
+// Init
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// COLLECTIONS
+const tablesRef = collection(db, "tables");
+const reservationsRef = collection(db, "reservations");
+const ordersRef = collection(db, "orders");
+
+// ═══════════════════════════════════════
+// 🔴 LIVE TABLES (REAL-TIME FLOOR)
+// ═══════════════════════════════════════
+onSnapshot(tablesRef, (snapshot) => {
+  TABLES.length = 0;
+  snapshot.forEach(docSnap => {
+    TABLES.push({ id: docSnap.id, ...docSnap.data() });
+  });
+  renderMain(currentTab || "Floor Map");
+});
+
+// ═══════════════════════════════════════
+// 🔴 LIVE RESERVATIONS
+// ═══════════════════════════════════════
+onSnapshot(reservationsRef, (snapshot) => {
+  RESERVATIONS.length = 0;
+  snapshot.forEach(docSnap => {
+    RESERVATIONS.push({ id: docSnap.id, ...docSnap.data() });
+  });
+  if (currentTab === "Reservations") renderMain("Reservations");
+});
+
+// ═══════════════════════════════════════
+// 🔴 ADD RESERVATION (REAL)
+// ═══════════════════════════════════════
+window.saveNewRes = async function () {
+  const name = document.getElementById('m-name').value || 'Guest';
+  const pax  = +document.getElementById('m-pax').value || 2;
+  const time = document.getElementById('m-time').value || '20:00';
+  const note = document.getElementById('m-note').value;
+
+  await addDoc(reservationsRef, {
+    name, pax, time, note,
+    status: "pending",
+    table: "TBD"
+  });
+
+  closeModal();
+  toast(`Reservation saved`);
+};
+
+// ═══════════════════════════════════════
+// 🔴 SEAT GUEST (LIVE UPDATE)
+// ═══════════════════════════════════════
+window.seatGuest = async function(name, tableId) {
+  const tableDoc = doc(db, "tables", String(tableId));
+  await updateDoc(tableDoc, {
+    status: "seated",
+    seated: new Date().toLocaleTimeString()
+  });
+
+  toast(`${name} seated`);
+};
+
+// ═══════════════════════════════════════
+// 🔴 SEND ORDER (LIVE)
+// ═══════════════════════════════════════
+window.sendToKitchen = async function () {
+  if (orderItems.length === 0) {
+    toast("Empty ticket");
+    return;
+  }
+
+  await addDoc(ordersRef, {
+    table: orderTableId,
+    items: orderItems,
+    total: orderItems.reduce((s,i)=>s+i.price*i.qty,0),
+    time: new Date().toLocaleTimeString()
+  });
+
+  toast(`Sent to kitchen`);
+  orderItems = [];
+  buildTicket();
+};
+
+// ═══════════════════════════════════════
+// 🔴 AUTO CREATE TABLES (FIRST RUN)
+// ═══════════════════════════════════════
+async function seedTables() {
+  if (TABLES.length > 0) return;
+
+  const defaultTables = [
+    {id:"1", pax:2, status:"free", zone:"Terrace"},
+    {id:"2", pax:2, status:"free", zone:"Terrace"},
+    {id:"3", pax:4, status:"free", zone:"Main"},
+    {id:"4", pax:2, status:"free", zone:"Main"},
+  ];
+
+  for (let t of defaultTables) {
+    await addDoc(tablesRef, t);
+  }
+}
+
+seedTables();
+
+</script>
+  
 </body>
 </html>
