@@ -1719,7 +1719,48 @@ async function seedTables() {
 }
 
 seedTables();
+  
+function drawFloor() {
+  const fl = document.getElementById('floor-left');
+  if (!fl) return;
 
+  fl.innerHTML = '';
+  
+  const map = document.createElement('div');
+  map.style.position = 'relative';
+  map.style.width = '100%';
+  map.style.height = '100%';
+  fl.appendChild(map);
+
+  const layout = [
+    {id:1, x:10, y:10, seats:4},
+    {id:2, x:30, y:10, seats:4},
+    {id:3, x:50, y:10, seats:4},
+    {id:4, x:70, y:10, seats:4},
+
+    {id:5, x:20, y:40, seats:2},
+    {id:6, x:40, y:40, seats:4},
+    {id:7, x:60, y:40, seats:2},
+
+    {id:8, x:30, y:70, seats:2},
+    {id:9, x:50, y:70, seats:4},
+    {id:10, x:70, y:70, seats:8},
+  ];
+
+  layout.forEach(t => {
+    const el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.left = t.x + '%';
+    el.style.top = t.y + '%';
+    el.style.transform = 'translate(-50%, -50%)';
+    el.style.padding = '10px';
+    el.style.border = '1px solid #555';
+    el.style.background = '#222';
+    el.style.color = 'white';
+    el.innerHTML = `T${t.id}<br>${t.seats}p`;
+    map.appendChild(el);
+  });
+}
 </script>
   
 </body>
