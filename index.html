@@ -1516,12 +1516,12 @@ function toast(msg) {
 }
 </script>
 
-<!-- Firebase (NO build tools needed) -->
+<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔑 YOUR CONFIG (already correct)
+// 🔑 CONFIG 
 const firebaseConfig = {
   apiKey: "AIzaSyCLPsPBZqgap4goUqUI6YW6iX7fdUVeAhQ",
   authDomain: "restaurantepos-5cabe.firebaseapp.com",
@@ -1540,13 +1540,41 @@ const tablesRef = collection(db, "tables");
 const reservationsRef = collection(db, "reservations");
 const ordersRef = collection(db, "orders");
 
+async function seedTables() {
+  const snapshot = await getDocs(tablesRef);
+
+  // If tables already exist → stop
+  if (!snapshot.empty) return;
+
+  console.log("Seeding tables...");
+
+  const defaultTables = [
+    {id:1, shape:'square', pax:2, status:'free',    zone:'Terrace',   server:'—', seated:'—', elapsed:null},
+    {id:2, shape:'square', pax:2, status:'ordered', zone:'Terrace',   server:'Sofía', seated:'7:42', elapsed:'48 min'},
+    {id:3, shape:'rect',   pax:4, status:'seated',  zone:'Terrace',   server:'Luis', seated:'8:05', elapsed:'25 min'},
+    {id:4, shape:'square', pax:2, status:'check',   zone:'Main Hall', server:'Sofía', seated:'7:10', elapsed:'80 min'},
+    {id:5, shape:'rect',   pax:6, status:'ordered', zone:'Main Hall', server:'Luis', seated:'7:55', elapsed:'35 min'},
+    {id:6, shape:'large',  pax:8, status:'free',    zone:'Main Hall', server:'—', seated:'—', elapsed:null},
+    {id:7, shape:'square', pax:2, status:'dirty',   zone:'Main Hall', server:'—', seated:'—', elapsed:null},
+    {id:8, shape:'round',  pax:4, status:'ordered', zone:'Bar',       server:'Camila', seated:'8:15', elapsed:'15 min'},
+    {id:9, shape:'square', pax:2, status:'free',    zone:'Bar',       server:'—', seated:'—', elapsed:null},
+    {id:10,shape:'rect',   pax:4, status:'seated',  zone:'Private',   server:'Camila', seated:'8:20', elapsed:'10 min'},
+  ];
+
+  for (const t of defaultTables) {
+    await addDoc(tablesRef, t);
+  }
+
+  console.log("Tables created");
+}
+
 // ═══════════════════════════════════════
 // 🔴 LIVE TABLES (REAL-TIME FLOOR)
 // ═══════════════════════════════════════
 onSnapshot(tablesRef, (snapshot) => {
   TABLES.length = 0;
   snapshot.forEach(docSnap => {
-    TABLES.push({ id: docSnap.id, ...docSnap.data() });
+    TABLES.push(docSnap.data());
   });
   renderMain(currentTab || "Floor Map");
 });
