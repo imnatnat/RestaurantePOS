@@ -1063,40 +1063,6 @@ function drawFloor() {
   });
 }
 
-  const zones = {};
-  TABLES.forEach(t => {
-    if (!zones[t.zone]) zones[t.zone] = [];
-    zones[t.zone].push(t);
-  });
-
-  const wrap = document.createElement('div');
-  wrap.className = 'floor-zones';
-
-  for (const [zone, tables] of Object.entries(zones)) {
-    const zDiv = document.createElement('div');
-    zDiv.innerHTML = `<div class="zone-label">— ${zone} —</div>`;
-    const row = document.createElement('div');
-    row.className = 'table-row';
-
-    tables.forEach(t => {
-      const node = document.createElement('div');
-      node.className = `table-node t-${t.status}`;
-      node.innerHTML = `
-        <div class="table-shape ${t.shape}">
-          <div class="table-num">${t.id}</div>
-          <div class="table-pax">${t.pax}p</div>
-        </div>
-        ${t.elapsed ? `<div class="table-time">${t.elapsed}</div>` : ''}`;
-      node.onclick = () => selectTableNode(t.id);
-      row.appendChild(node);
-    });
-
-    zDiv.appendChild(row);
-    wrap.appendChild(zDiv);
-  }
-  fl.appendChild(wrap);
-}
-
 const FAKE_ORDERS = {
   2: [{name:'Wagyu Strip',price:980},{name:'Dover Sole',price:720},{name:'Château Margaux',price:4200}],
   4: [{name:'Duck Confit',price:560},{name:'Risotto Nero',price:480},{name:'Soufflé au Chocolat',price:220}],
