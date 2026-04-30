@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Login:", user);
 
-    // TEMP LOGIN (you can change this later)
+    // TEMP LOGIN
     if (user === "admin" && pass === "1234") {
       window.location.href = "dashboard.html";
     } else {
