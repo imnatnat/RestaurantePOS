@@ -1647,6 +1647,8 @@ async function updateTableStatus(id, status) {
   }
 }
 
+window.updateTableStatus = updateTableStatus;
+
 // COLLECTIONS
 const tablesRef = collection(db, "tables");
 const reservationsRef = collection(db, "reservations");
