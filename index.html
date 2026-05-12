@@ -1656,8 +1656,6 @@ const tablesRef = collection(db, "tables");
 const reservationsRef = collection(db, "reservations");
 const ordersRef = collection(db, "orders");
 
-const tablesRef = collection(db, "tables");
-
 async function seedTables() {
   const snapshot = await getDocs(tablesRef);
 
