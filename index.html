@@ -1640,7 +1640,7 @@ const db = getFirestore(app);
 async function updateTableStatus(id, status) {
   try {
     await updateDoc(
-      doc(db, "tables", "table" + id),
+      doc(db, "tables", String(tableId))
       {
         status: status
       }
