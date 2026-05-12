@@ -1767,24 +1767,6 @@ window.sendToKitchen = async function () {
   buildTicket();
 };
 
-// ═══════════════════════════════════════
-// 🔴 AUTO CREATE TABLES (FIRST RUN)
-// ═══════════════════════════════════════
-async function seedTables() {
-  if (TABLES.length > 0) return;
-
-  const defaultTables = [
-    {id:"1", pax:2, status:"free", zone:"Terrace"},
-    {id:"2", pax:2, status:"free", zone:"Terrace"},
-    {id:"3", pax:4, status:"free", zone:"Main"},
-    {id:"4", pax:2, status:"free", zone:"Main"},
-  ];
-
-  for (let t of defaultTables) {
-    await addDoc(tablesRef, t);
-  }
-}
-
 seedTables();
   
 function drawFloor() {
