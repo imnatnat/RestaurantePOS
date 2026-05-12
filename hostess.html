@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hostess — Mapa de Mesas</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h2 { margin-bottom: 10px; }
+
+    /* Legend */
+    .leyenda {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      align-items: center;
+    }
+    .leyenda span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Floor map */
+    #floor {
+      position: relative;
+      width: 620px;
+      height: 280px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      background: white;
+    }
+
+    /* Mesa cards */
+    .mesa {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 13px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      transition: transform 0.1s;
+      user-select: none;
+    }
+    .mesa:hover { transform: scale(1.08); }
+    .mesa small { font-size: 10px; font-weight: normal; opacity: 0.9; }
+
+    /* Action modal */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    #modal-overlay.show { display: flex; }
+    #modal {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    #modal h3 { margin: 0 0 6px; }
+    #modal p  { margin: 0 0 18px; color: #555; font-size: 14px; }
+    .btn-group { display: flex; flex-direction: column; gap: 10px; }
+    .btn-group button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      color: white;
+    }
+    .btn-sentar   { background: #e53935; }
+    .btn-limpiar  { background: #fb8c00; }
+    .btn-liberar  { background: #43a047; }
+    .btn-orden    { background: #1e88e5; }
+    .btn-cancelar { background: #aaa; }
+    .btn-group button:hover { opacity: 0.85; }
+
+    #reload-btn {
+      margin-top: 16px;
+      padding: 8px 18px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #reload-btn:hover { background: #555; }
+  </style>
+</head>
+<body>
+
+<h2>🍽️ Mapa de Mesas</h2>
+
+<!-- Legend -->
+<div class="leyenda">
+  <span><span class="dot" style="background:green"></span> Disponible</span>
+  <span><span class="dot" style="background:red"></span> Ocupada</span>
+  <span><span class="dot" style="background:orange"></span> Limpieza</span>
+  <span><span class="dot" style="background:gray"></span> Otro</span>
+</div>
+
+<!-- Floor map -->
+<div id="floor"></div>
+
+<button id="reload-btn" onclick="cargarMesas()">🔄 Actualizar mesas</button>
+
+<!-- Action modal -->
+<div id="modal-overlay">
+  <div id="modal">
+    <h3 id="modal-titulo">Mesa X</h3>
+    <p id="modal-estado">Estado: —</p>
+    <div class="btn-group">
+      <button class="btn-sentar"   onclick="accion('Ocupada')">🪑 Sentar comensales</button>
+      <button class="btn-limpiar"  onclick="accion('Limpieza')">🧹 Marcar para limpieza</button>
+      <button class="btn-liberar"  onclick="accion('Disponible')">✅ Liberar mesa</button>
+      <button class="btn-orden"    onclick="irAOrden()">📋 Ir a tomar orden</button>
+      <button class="btn-cancelar" onclick="cerrarModal()">✖ Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "https://restaurant-pos-backend-i88u.onrender.com";
+
+const posiciones = {
+  1:  { x: 30,  y: 30  },
+  2:  { x: 120, y: 30  },
+  3:  { x: 210, y: 30  },
+  4:  { x: 300, y: 30  },
+  5:  { x: 390, y: 30  },
+  6:  { x: 480, y: 30  },
+  7:  { x: 30,  y: 150 },
+  8:  { x: 120, y: 150 },
+  9:  { x: 210, y: 150 },
+  10: { x: 300, y: 150 }
+};
+
+let mesaSeleccionada = null; // { id_mesa, numero, estado }
+
+// ── Load tables ─────────────────────────────────────────────
+async function cargarMesas() {
+  try {
+    const res = await fetch(`${API}/mesas`);
+    const mesas = await res.json();
+    const floor = document.getElementById("floor");
+    floor.innerHTML = "";
+
+    mesas.forEach(m => {
+      const pos = posiciones[m.numero] || { x: 0, y: 0 };
+
+      const color =
+        m.estado === "Disponible" ? "#43a047" :
+        m.estado === "Ocupada"    ? "#e53935" :
+        m.estado === "Limpieza"   ? "#fb8c00" :
+        "#757575";
+
+      const d = document.createElement("div");
+      d.className = "mesa";
+      d.innerHTML = `<span>Mesa ${m.numero}</span><small>${m.estado}</small>`;
+      d.style.left       = pos.x + "px";
+      d.style.top        = pos.y + "px";
+      d.style.background = color;
+
+      d.onclick = () => abrirModal(m);
+      floor.appendChild(d);
+    });
+  } catch (err) {
+    alert("Error cargando mesas. ¿Está corriendo el backend?\n" + err.message);
+  }
+}
+
+// ── Modal ────────────────────────────────────────────────────
+function abrirModal(mesa) {
+  mesaSeleccionada = mesa;
+  document.getElementById("modal-titulo").textContent = `Mesa ${mesa.numero}`;
+  document.getElementById("modal-estado").textContent  = `Estado actual: ${mesa.estado}`;
+  document.getElementById("modal-overlay").classList.add("show");
+}
+
+function cerrarModal() {
+  document.getElementById("modal-overlay").classList.remove("show");
+  mesaSeleccionada = null;
+}
+
+// Close modal if clicking outside
+document.getElementById("modal-overlay").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("modal-overlay")) cerrarModal();
+});
+
+// ── Change table state ───────────────────────────────────────
+async function accion(nuevoEstado) {
+  if (!mesaSeleccionada) return;
+  try {
+    const res = await fetch(`${API}/mesas/${mesaSeleccionada.id_mesa}/estado`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado: nuevoEstado })
+    });
+    if (!res.ok) throw new Error("Respuesta del servidor: " + res.status);
+    cerrarModal();
+    await cargarMesas(); // refresh colors
+  } catch (err) {
+    alert("Error al cambiar estado: " + err.message);
+  }
+}
+
+// ── Go to order page ─────────────────────────────────────────
+function irAOrden() {
+  if (!mesaSeleccionada) return;
+  window.location.href = `server.html?mesa=${mesaSeleccionada.id_mesa}`;
+}
+
+// ── Init ─────────────────────────────────────────────────────
+cargarMesas();
+
+// Auto-refresh every 30 seconds
+setInterval(cargarMesas, 30000);
+</script>
+
+</body>
+</html>
