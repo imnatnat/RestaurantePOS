@@ -1137,11 +1137,22 @@ function selectTableNode(id) {
   const orders = FAKE_ORDERS[id] || [];
   const total = orders.reduce((s,o) => s + o.price, 0);
 
-  const hostessActions = currentRole === 'hostess' ? `
-    <button class="btn btn-green" onclick="toast('Mesa ${id} marcada como sentados')">Sentar Comensales</button>
-    <button class="btn" onclick="toast('Mesa ${id} marcada como limpia')">Marcar Limpia</button>
-    <button class="btn btn-red" onclick="toast('Mesa ${id} liberada')">Liberar Mesa</button>
-  ` : '';
+const hostessActions = currentRole === 'hostess' ? `
+  <button class="btn btn-green"
+    onclick="updateTableStatus(${id}, 'seated')">
+    Sentar
+  </button>
+
+  <button class="btn"
+    onclick="updateTableStatus(${id}, 'dirty')">
+    Marcar Sucia
+  </button>
+
+  <button class="btn btn-red"
+    onclick="updateTableStatus(${id}, 'free')">
+    Liberar
+  </button>
+` : '';
 
   const serverActions = currentRole === 'server' ? `
     <button class="btn btn-gold" onclick="goToOrder(${id})">Abrir Pedido →</button>
@@ -1619,6 +1630,19 @@ const firebaseConfig = {
 // Init
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+async function updateTableStatus(tableId, newStatus) {
+  try {
+    await updateDoc(doc(db, "tables", String(tableId)), {
+      status: newStatus
+    });
+
+    toast(`Mesa ${tableId} actualizada`);
+  } catch (err) {
+    console.error(err);
+    toast("Error actualizando mesa");
+  }
+}
 
 // COLLECTIONS
 const tablesRef = collection(db, "tables");
