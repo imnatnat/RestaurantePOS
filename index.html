@@ -1128,7 +1128,11 @@ const FAKE_ORDERS = {
 
 function selectTableNode(id) {
   selectedTable = id;
-  const t = TABLES.find(x => x.id === id);
+  const t = TABLES.find(x => String(x.id) === String(id));
+  if (!t) {
+  console.error("Table not found", id, TABLES);
+  return;
+}
   const det = document.getElementById('table-detail');
   if (!det) return;
 
