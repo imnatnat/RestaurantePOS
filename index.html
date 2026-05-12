@@ -1657,7 +1657,6 @@ const ordersRef = collection(db, "orders");
 async function seedTables() {
   const snapshot = await getDocs(tablesRef);
 
-  // If tables already exist → stop
   if (!snapshot.empty) return;
 
   console.log("Seeding tables...");
@@ -1676,7 +1675,14 @@ async function seedTables() {
   ];
 
   for (const t of defaultTables) {
-    await addDoc(tablesRef, t);
+
+    // IMPORTANT:
+    // document id = table number
+
+    await setDoc(
+      doc(db, "tables", String(t.id)),
+      t
+    );
   }
 
   console.log("Tables created");
