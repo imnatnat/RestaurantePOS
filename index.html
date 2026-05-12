@@ -1597,7 +1597,14 @@ function toast(msg) {
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  updateDoc,
+  onSnapshot
+} 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // 🔑 CONFIG 
 const firebaseConfig = {
