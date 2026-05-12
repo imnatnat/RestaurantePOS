@@ -1009,12 +1009,6 @@ function drawFloor() {
   fl.innerHTML = `<div style="position:relative;width:100%;height:100%;overflow:hidden;"></div>`;
   const map = fl.firstChild;
 
-  // Layout fiel al plano de la imagen:
-  // Fila 1 (top): 4 booths rectangulares horizontales
-  // Fila 2: 2 tables verticales (2ppl) a la izq + 3 mesas redondas (4ppl) al centro
-  // Fila 3: 2 tables verticales (2ppl) a la izq + 3 mesas redondas (4ppl) al centro
-  // Fila 4: 3 mesas redondas (4ppl) al centro
-  // Fila 5 (bottom): 4 booths rectangulares horizontales al centro + 1 booth grande a la derecha
   const layout = [
     // Fila 1 — 4 booths horizontales (top)
     {id:1,  x:7,  y:8,  w:110, h:55, shape:'booth',  seats:4,  label:'Booth'},
@@ -1038,7 +1032,7 @@ function drawFloor() {
     {id:13, x:50, y:55, w:80,  h:80, shape:'round',  seats:4,  label:'Mesa'},
     {id:14, x:65, y:55, w:80,  h:80, shape:'round',  seats:4,  label:'Mesa'},
 
-    // Fila 4 — 3 mesas redondas (sin tables verticales)
+    // Fila 4 — 3 mesas redondas 
     {id:15, x:35, y:75, w:80,  h:80, shape:'round',  seats:4,  label:'Mesa'},
     {id:16, x:50, y:75, w:80,  h:80, shape:'round',  seats:4,  label:'Mesa'},
     {id:17, x:65, y:75, w:80,  h:80, shape:'round',  seats:4,  label:'Mesa'},
